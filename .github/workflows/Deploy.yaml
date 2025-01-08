@@ -1,0 +1,55 @@
+name: Deploy
+  
+on:
+  workflow_dispatch:
+    inputs:
+      access:
+        description: "AWS access key(Leave empty to use repo secret)"
+        required: false
+        default: ""
+      secret:
+        description: "AWS secret key(Leave empty to use repo secret)"
+        required: false
+        default: ""
+      region:
+        description: "AWS region"
+        required: true
+        default: "us-east-1"
+      state:
+        description: "The S3 bucket to save state(Leave empty if not desired)"
+        required: false
+        default: ""
+jobs:
+  terraform-apply:
+    name: Terraform deploy
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ github.event.inputs.access != '' && github.event.inputs.access || secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ github.event.inputs.secret != '' && github.event.inputs.secret || secrets.AWS_SECRET_KEY }}
+      AWS_DEFAULT_REGION: ${{ github.event.inputs.region }}
+    steps:
+      - run: echo "This job is running on ${{ runner.os }} runner hosted by Github"
+      - name: Repository clone
+        uses: actions/checkout@v4
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Setup helm
+        uses: azure/setup-helm@v4.2.0
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform validate
+        run: terraform validate
+      - name: Terraform Apply DNS
+        run: terraform apply -target="null_resource.dns" -auto-approve
+      - name: Terraform Apply Infrastructure
+        if: github.event.inputs.state == ''
+        run: terraform apply -auto-approve
+      - name: Terraform Apply Infrastructure with S3 state
+        if: github.event.inputs.state != ''
+        run: terraform apply -auto-approve -state-out="$GITHUB_REF_NAME.tfstate"
+      - name: Copy state to S3
+        if: github.event.inputs.state != ''
+        run: aws s3 cp $GITHUB_REF_NAME.tfstate s3://${{github.event.inputs.state}}/state/$GITHUB_REF_NAME.tfstate
+        
