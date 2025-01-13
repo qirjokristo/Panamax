@@ -21,3 +21,4 @@ CI/CD Integration: Seamlessly integrates with GitHub Actions for continuous depl
 GitHub Actions Workflow: Panamax includes a GitHub Actions workflow to automate the deployment process. The workflow is triggered manually via the workflow_dispatch event.
 
 Workflow Configuration: The workflow file is located at .github/workflows/deploy.yml. It includes inputs for AWS credentials, region, and S3 state bucket.
+![eks drawio](https://github.com/user-attachments/assets/25ba3819-4f56-4836-bc60-fbbfac153b24)
