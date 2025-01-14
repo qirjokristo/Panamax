@@ -4,12 +4,6 @@ variable "cidr_all" {
   default     = "0.0.0.0/0"
 }
 
-variable "vpc_cidr" {
-  type        = string
-  description = "Cidr for vpc"
-  default     = "10.233.0.0/16"
-}
-
 variable "region" {
   type        = string
   description = "Region to be deployed to"
@@ -24,8 +18,22 @@ variable "db_user" {
 
 }
 
+#########CONFIGURE VARIABLES##########################
+
+variable "vpc_cidr" {
+  type        = string
+  description = "Cidr for vpc"
+  default     = "10.233.0.0/16"
+}
+
 variable "project" {
   type        = string
   description = "The name of the project"
   default     = "panamax"
+}
+
+variable "db_instance_class" {
+  type        = string
+  description = "The instance class of the database in RDS"
+  default     = "db.t3.micro"
 }
