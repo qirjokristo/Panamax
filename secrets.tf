@@ -4,6 +4,7 @@ resource "random_password" "rds" {
 }
 
 resource "aws_secretsmanager_secret" "rds" {
+  name = "panamax-secret"
   description = "Secret for db credentials"
   tags        = merge(local.common_tags, { Name = "${var.project}-secret" })
 }
